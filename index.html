@@ -15,6 +15,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
             height: 100vh;
             background-color: #f4f4f4; /* Change this to any background color */
             font-family: Arial, sans-serif;
@@ -36,6 +37,19 @@
             border-radius: 10px;
         }
 
+        .game {
+            margin-top: 20px;
+            padding: 10px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        #gameCanvas {
+            background: lightblue;
+            border: 2px solid black;
+        }
+
         @media (max-width: 600px) {
             .content {
                 max-width: 90%;
@@ -45,9 +59,76 @@
 </head>
 <body>
     <div class="content">
-        <h1>Welcome to My Website</h1>
-        <p>This is a simple, clean, and responsive webpage.</p>
+        <h1>FELICIDADES JORGEE</h1>
+        <p>21 años desde que naciste<br/>Fan de Anthony(el del betis) desde la cuna</p>
         <img src="your-image.jpg" alt="A descriptive image">
     </div>
+    
+    <div class="game">
+        <h2>I've added a simple "Catch the Ball" minigame below the image.Catch the Ball Game!(Confia Jorge 100% no he hecho esto con chatgpt(voy a trabajar en el mcdonalds))</h2>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+    </div>
+    
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let ball = { x: 200, y: 50, radius: 10, dx: 2, dy: 3 };
+        let paddle = { x: 150, y: 370, width: 100, height: 10 };
+
+        document.addEventListener("mousemove", (event) => {
+            let rect = canvas.getBoundingClientRect();
+            paddle.x = event.clientX - rect.left - paddle.width / 2;
+        });
+
+        function drawBall() {
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+            ctx.fillStyle = "red";
+            ctx.fill();
+            ctx.closePath();
+        }
+
+        function drawPaddle() {
+            ctx.fillStyle = "black";
+            ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+        }
+
+        function updateGame() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawBall();
+            drawPaddle();
+            
+            ball.x += ball.dx;
+            ball.y += ball.dy;
+            
+            if (ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) {
+                ball.dx *= -1;
+            }
+            
+            if (ball.y - ball.radius < 0) {
+                ball.dy *= -1;
+            }
+            
+            if (
+                ball.y + ball.radius > paddle.y &&
+                ball.x > paddle.x &&
+                ball.x < paddle.x + paddle.width
+            ) {
+                ball.dy *= -1;
+            }
+            
+            if (ball.y + ball.radius > canvas.height) {
+                ball.x = 200;
+                ball.y = 50;
+                ball.dx = 2;
+                ball.dy = 3;
+            }
+            
+            requestAnimationFrame(updateGame);
+        }
+
+        updateGame();
+    </script>
 </body>
 </html>
