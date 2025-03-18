@@ -46,7 +46,7 @@
         }
 
         #gameCanvas {
-            background: lightblue;
+            background: black;
             border: 2px solid black;
         }
 
@@ -65,7 +65,7 @@
     </div>
     
     <div class="game">
-        <h2>I've added a simple "Catch the Ball" minigame below the image.Catch the Ball Game!(Confia Jorge 100% no he hecho esto con chatgpt(voy a trabajar en el mcdonalds))</h2>
+        <h2>I've added a simple "Snake game" minigame below the image.Catch the Ball Game!(Confia Jorge 100% no he hecho esto con chatgpt(voy a trabajar en el mcdonalds))</h2>
         <canvas id="gameCanvas" width="400" height="400"></canvas>
     </div>
     
@@ -73,62 +73,62 @@
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
 
-        let ball = { x: 200, y: 50, radius: 10, dx: 2, dy: 3 };
-        let paddle = { x: 150, y: 370, width: 100, height: 10 };
+        const box = 20;
+        let snake = [{ x: 200, y: 200 }];
+        let direction = "RIGHT";
+        let food = {
+            x: Math.floor(Math.random() * 20) * box,
+            y: Math.floor(Math.random() * 20) * box,
+        };
 
-        document.addEventListener("mousemove", (event) => {
-            let rect = canvas.getBoundingClientRect();
-            paddle.x = event.clientX - rect.left - paddle.width / 2;
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+            if (event.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+            if (event.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+            if (event.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
         });
 
-        function drawBall() {
-            ctx.beginPath();
-            ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
-            ctx.fillStyle = "red";
-            ctx.fill();
-            ctx.closePath();
-        }
-
-        function drawPaddle() {
+        function drawGame() {
             ctx.fillStyle = "black";
-            ctx.fillRect(paddle.x, paddle.y, paddle.width, paddle.height);
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = "red";
+            ctx.fillRect(food.x, food.y, box, box);
+
+            ctx.fillStyle = "lime";
+            snake.forEach((segment) => {
+                ctx.fillRect(segment.x, segment.y, box, box);
+            });
         }
 
         function updateGame() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            drawBall();
-            drawPaddle();
-            
-            ball.x += ball.dx;
-            ball.y += ball.dy;
-            
-            if (ball.x + ball.radius > canvas.width || ball.x - ball.radius < 0) {
-                ball.dx *= -1;
+            let head = { ...snake[0] };
+            if (direction === "UP") head.y -= box;
+            if (direction === "DOWN") head.y += box;
+            if (direction === "LEFT") head.x -= box;
+            if (direction === "RIGHT") head.x += box;
+
+            if (head.x === food.x && head.y === food.y) {
+                food.x = Math.floor(Math.random() * 20) * box;
+                food.y = Math.floor(Math.random() * 20) * box;
+            } else {
+                snake.pop();
             }
-            
-            if (ball.y - ball.radius < 0) {
-                ball.dy *= -1;
-            }
-            
+
             if (
-                ball.y + ball.radius > paddle.y &&
-                ball.x > paddle.x &&
-                ball.x < paddle.x + paddle.width
+                head.x < 0 || head.x >= canvas.width ||
+                head.y < 0 || head.y >= canvas.height ||
+                snake.some(segment => segment.x === head.x && segment.y === head.y)
             ) {
-                ball.dy *= -1;
+                snake = [{ x: 200, y: 200 }];
+                direction = "RIGHT";
             }
-            
-            if (ball.y + ball.radius > canvas.height) {
-                ball.x = 200;
-                ball.y = 50;
-                ball.dx = 2;
-                ball.dy = 3;
-            }
-            
-            requestAnimationFrame(updateGame);
+
+            snake.unshift(head);
+            drawGame();
         }
 
-        updateGame();
+        setInterval(updateGame, 100);
     </script>
 </body>
 </html>
